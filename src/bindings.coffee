@@ -6,7 +6,7 @@ class Rivets.Binding
   # All information about the binding is passed into the constructor; the
   # containing view, the DOM node, the type of binding, the model object and the
   # keypath at which to listen for changes.
-  constructor: (@view, @el, @type, @keypath, @options = {}) ->
+  constructor: (@view, @el, @type, @keypath, @options = {}, @index) ->
     @formatters = @options.formatters or []
     @dependencies = []
     @formatterObservers = {}
@@ -264,7 +264,7 @@ class Rivets.ComponentBinding extends Rivets.Binding
 # differences while avoiding it being overwritten.
 class Rivets.TextBinding extends Rivets.Binding
   # Initializes a text binding for the specified view and text node.
-  constructor: (@view, @el, @type, @keypath, @options = {}) ->
+  constructor: (@view, @el, @type, @keypath, @options = {}, @index) ->
     @formatters = @options.formatters or []
     @dependencies = []
     @formatterObservers = {}
@@ -272,7 +272,8 @@ class Rivets.TextBinding extends Rivets.Binding
   # A standard routine binder used for text node bindings.
   binder:
     routine: (node, value) ->
-      node.data = value ? ''
+      node.dataConstructor[@index] = value ? ''
+      node.data = node.dataConstructor.join ''
 
   # Wrap the call to `sync` in fat-arrow to avoid function context issues.
   sync: =>

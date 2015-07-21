@@ -31,7 +31,7 @@ class Rivets.View
   bindingRegExp: =>
     new RegExp "^#{@prefix}-"
 
-  buildBinding: (binding, node, type, declaration) =>
+  buildBinding: (binding, node, type, declaration, index) =>
     options = {}
 
     pipes = (pipe.trim() for pipe in declaration.split '|')
@@ -43,7 +43,7 @@ class Rivets.View
     if dependencies = context.shift()
       options.dependencies = dependencies.split /\s+/
 
-    @bindings.push new Rivets[binding] @, node, type, keypath, options
+    @bindings.push new Rivets[binding] @, node, type, keypath, options, index
 
   # Parses the DOM tree and builds `Rivets.Binding` instances for every matched
   # binding declaration.
@@ -57,13 +57,15 @@ class Rivets.View
         if delimiters = @templateDelimiters
           if (tokens = parser.parse(node.data, delimiters)).length
             unless tokens.length is 1 and tokens[0].type is parser.types.text
-              for token in tokens
-                text = document.createTextNode token.value
-                node.parentNode.insertBefore text, node
-
+              text = document.createTextNode ""
+              text.dataConstructor = [];
+              node.parentNode.insertBefore text, node
+              for token, tokenIndex in tokens
+                text.dataConstructor.push token.value
                 if token.type is 1
-                  @buildBinding 'TextBinding', text, null, token.value
+                  @buildBinding 'TextBinding', text, null, token.value, tokenIndex
               node.parentNode.removeChild node
+              text.data = text.dataConstructor.join ""
       else if node.nodeType is 1
         block = @traverse node
 
