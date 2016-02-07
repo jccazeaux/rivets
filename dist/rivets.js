@@ -616,7 +616,7 @@
         if ((formatter != null ? formatter.read : void 0) instanceof Function) {
           value = formatter.read.apply(formatter, [value].concat(__slice.call(processedArgs)));
         } else if (formatter instanceof Function) {
-          value = formatter.apply(null, [value].concat(__slice.call(processedArgs)));
+          value = formatter.call.apply(formatter, [this.model, value].concat(__slice.call(processedArgs)));
         }
       }
       return value;
@@ -632,7 +632,7 @@
 
     Binding.prototype.set = function(value) {
       var _ref1;
-      value = value instanceof Function && !this.binder["function"] ? this.formattedValue(value) : this.formattedValue(value);
+      value = this.formattedValue(value);
       return (_ref1 = this.binder.routine) != null ? _ref1.call(this, this.el, value) : void 0;
     };
 

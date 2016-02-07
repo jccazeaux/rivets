@@ -67,7 +67,7 @@ class Rivets.Binding
       if formatter?.read instanceof Function
         value = formatter.read value, processedArgs...
       else if formatter instanceof Function
-        value = formatter value, processedArgs...
+        value = formatter.call @model, value, processedArgs...
 
     value
 
@@ -79,11 +79,7 @@ class Rivets.Binding
   # Sets the value for the binding. This Basically just runs the binding routine
   # with the suplied value formatted.
   set: (value) =>
-    value = if value instanceof Function and !@binder.function
-      @formattedValue value
-    else
-      @formattedValue value
-
+    value = @formattedValue value
     @binder.routine?.call @, @el, value
 
   # Syncs up the view binding with the model.
