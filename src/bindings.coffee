@@ -231,7 +231,10 @@ class Rivets.ComponentBinding extends Rivets.Binding
       @componentView.bind()
     else
       @el.innerHTML = @component.template.call this
-      scope = @component.initialize.call @, @el, @locals()
+      scope = Object.create(@view.models)
+      newScope = @component.initialize.call @, @el, @locals()
+      for keyy, valuee of newScope
+        scope[keyy] = valuee
       @el._bound = true
 
       options = {}
