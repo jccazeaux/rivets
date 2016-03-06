@@ -56,29 +56,37 @@ Rivets.public.adapters['.'] =
           @cleanupWeakReference map, obj[@id]
 
   observe: (obj, keypath, callback) ->
+    _bound = obj.hasOwnProperty @id
     callbacks = @weakReference(obj).callbacks
 
     unless callbacks[keypath]?
       callbacks[keypath] = []
       desc = Object.getOwnPropertyDescriptor obj, keypath
 
-      unless desc?.get or desc?.set
+      unless _bound
         value = obj[keypath]
 
         Object.defineProperty obj, keypath,
           enumerable: true
-          get: -> value
+          get: -> if desc?.get
+              desc.get.call @
+            else
+              value
           set: (newValue) =>
             if newValue isnt value
               @unobserveMutations value, obj[@id], keypath
               value = newValue
+              if desc?.set
+                desc.set.call @, newValue
+              if desc?.get
+                value = desc.get.call @
 
               if map = @weakmap[obj[@id]]
                 callbacks = map.callbacks
 
                 if callbacks[keypath]
                   cb() for cb in callbacks[keypath]
-                @observeMutations newValue, obj[@id], keypath
+                @observeMutations value, obj[@id], keypath
 
     unless callback in callbacks[keypath]
       callbacks[keypath].push callback
